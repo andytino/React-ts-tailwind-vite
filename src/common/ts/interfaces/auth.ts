@@ -3,13 +3,17 @@ export interface IAuthRequest {
   password: string
 }
 
+export interface IAuthResponse {
+  token: string
+}
+
 export interface IToken {
   accessToken: string | null
   refreshToken: string | null
 }
 
 export interface IVerifyAuth extends IToken {
-  id: number
+  id: string
   username: string
   email: string
   role: number

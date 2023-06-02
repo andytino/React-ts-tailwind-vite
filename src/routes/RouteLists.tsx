@@ -1,11 +1,13 @@
 import {ReactNode, lazy} from 'react'
-import {MODE_VIEW} from '@/common/ts/enums'
 
+import {MODE_VIEW} from '@/common/ts/enums'
 import PageContainer from '@/containers/PageContainer'
 
 // Import normal
 import Home from '@/pages/Home'
 import Login from '@/pages/Login/Login'
+import PublicRoute from './Public'
+import PrivateRoute from './Private'
 
 // Import lazy
 const About = lazy(() => import('@/pages/About'))
@@ -20,47 +22,61 @@ type RouteType = {
   children?: RouteType[]
 
   // custom config
-  title: string
+  page: string
   mode?: number
   isInNav?: boolean
 }
 
 const RouteList: RouteType[] = [
   {
-    path: '/',
+    path: '/home',
     element: (
-      <PageContainer useLazy={false} title="Home">
-        <Home />
-      </PageContainer>
+      <PublicRoute>
+        <PageContainer useLazy={false} title="Home">
+          <Home />
+        </PageContainer>
+      </PublicRoute>
     ),
-    title: '',
+    page: 'Home',
     mode: MODE_VIEW.PUBLIC,
     isInNav: false,
   },
   {
     path: '/login',
     element: (
-      <PageContainer useLazy={false} title="Login">
-        <Login />
-      </PageContainer>
+      <PublicRoute>
+        <PageContainer useLazy={false} title="Login">
+          <Login />
+        </PageContainer>
+      </PublicRoute>
     ),
-    title: 'login',
+    page: 'Login',
     mode: MODE_VIEW.PUBLIC,
     isInNav: true,
   },
   {
     path: '/about',
-    element: (
-      <PageContainer title="About">
-        <About />
-      </PageContainer>
-    ),
-    title: 'About',
+    element: <PublicRoute />,
+    children: [
+      {
+        path: '',
+        element: (
+          <PageContainer title="Account">
+            <About />
+          </PageContainer>
+        ),
+        page: 'About',
+        mode: MODE_VIEW.PUBLIC,
+        isInNav: true,
+      },
+    ],
+    page: 'About',
     mode: MODE_VIEW.PUBLIC,
     isInNav: true,
   },
   {
     path: '/account',
+    element: <PrivateRoute />,
     children: [
       {
         path: '',
@@ -69,7 +85,7 @@ const RouteList: RouteType[] = [
             <Account />
           </PageContainer>
         ),
-        title: 'Account',
+        page: 'Account',
         mode: MODE_VIEW.PUBLIC,
         isInNav: true,
       },
@@ -80,26 +96,35 @@ const RouteList: RouteType[] = [
             <AccountDetail />
           </PageContainer>
         ),
-        title: 'Detail',
+        page: 'Detail',
         mode: MODE_VIEW.PUBLIC,
         isInNav: true,
       },
     ],
-    title: 'account',
+    page: 'Account',
     mode: MODE_VIEW.PRIVATE,
     isInNav: true,
   },
   {
     path: '*',
     element: (
-      <PageContainer title="Page not found">
-        <NotFound />
-      </PageContainer>
+      <PublicRoute>
+        <PageContainer title="Page not found!">
+          <NotFound />
+        </PageContainer>
+      </PublicRoute>
     ),
-    title: 'Page not found!',
+    page: 'PageNotFound',
     mode: MODE_VIEW.PUBLIC,
     isInNav: false,
   },
 ]
 
 export default RouteList
+
+// Render Route path
+const ob: Record<string, string> = {}
+RouteList.map((r) => (ob[r.page] = r.path))
+export const ROUTE_PATH = {
+  ...ob,
+}

@@ -2,11 +2,10 @@ import '@/App.css'
 import MainRoute from './routes'
 
 function App() {
-  const isAdmin = true
-
+  console.log('App')
   return (
     <div className="App">
-      <MainRoute isAdmin={isAdmin} />
+      <MainRoute />
     </div>
   )
 }

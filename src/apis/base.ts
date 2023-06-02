@@ -19,6 +19,9 @@ import {
   setTokenCredentials,
 } from '@/store/authToken'
 import {resetCredentials, setCredentials} from '@/store/user'
+import {logout} from '@/pages/Logout/hooks/useLogout'
+import {useNavigate} from 'react-router-dom'
+import {ROUTE_PATH} from '@/routes/RouteLists'
 
 export const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_APP_API_ENDPOINT,
@@ -55,13 +58,17 @@ export const baseQueryWithReauth: BaseQueryFn<
   }
 
   if (result.error && result.error.status === 401) {
+    console.log('api', api)
+    console.log('extraOptions', extraOptions)
+
     // try to get a new token
     const refreshResult = await baseQuery(
-      {url: 'auth/refresh-token', method: 'POST'},
+      {url: 'auth/refresh-token', method: 'POST', body: {}},
       api,
       extraOptions,
     )
 
+    console.log('refreshResult', refreshResult)
     if (!refreshResult.error && refreshResult.data) {
       const temp = refreshResult.data as IBaseResponse<IVerifyAuth>
       // store the new token
@@ -86,22 +93,18 @@ export const baseQueryWithReauth: BaseQueryFn<
 
       // retry the initial query
       // test
-      result = await baseQuery(
-        {url: 'auth/me-refresh', method: 'GET'},
-        api,
-        extraOptions,
-      )
+      result = await baseQuery({url: 'auth/me-refresh'}, api, extraOptions)
       // ----
       // result = await baseQuery(args, api, extraOptions)
+
       const profile = result.data as IBaseResponse<IAuthMe>
       if (profile.result.data) {
         api.dispatch(setCredentials(profile.result.data))
       }
+      console.log('profile', profile)
     } else {
-      // logout
-      StorageService.remove(storageKeys.authToken)
-      api.dispatch(resetCredentials())
-      api.dispatch(resetTokenCredentials())
+      console.log(';', result)
+      logout(api)
     }
   }
   return result

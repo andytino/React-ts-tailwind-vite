@@ -6,7 +6,7 @@ import {useNavigate} from 'react-router-dom'
 import {useEffect, useMemo} from 'react'
 
 export const useAuth = () => {
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
   const {accessToken} = useAppSelector(selectToken)
   const user = useAppSelector(selectCurrentUser)
   const dispatch = useAppDispatch()
@@ -46,7 +46,7 @@ export const useAuth = () => {
   }, [user])
 
   const moveToLoginPage = () => {
-    navigate('/login')
+    // navigate('/login')
   }
 
   return {
